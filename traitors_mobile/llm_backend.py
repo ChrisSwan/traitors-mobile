@@ -268,7 +268,12 @@ class ClaudeBackend(LLMBackend):
                 elif exc.status_code >= 500:
                     last_error = BackendUnreachableError(str(exc), model=self.model, retries=self.max_retries - attempt)
                 else:
-                    raise
+                    # Non-retryable 4xx (auth/validation) -- surface as a
+                    # BackendError, never retry, never fabricate.
+                    raise BackendError(
+                        f"Claude API error (HTTP {exc.status_code}): {exc}",
+                        model=self.model,
+                    ) from exc
             if attempt < self.max_retries:
                 time.sleep(self.retry_backoff_base_seconds * (2 ** attempt))
         raise BackendUnavailableError(
