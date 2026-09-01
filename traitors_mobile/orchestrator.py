@@ -372,11 +372,23 @@ def write_game_outputs(
     transcript_path = output_dir / f"game_{result.game_id}.transcript.json"
     result_path = output_dir / f"game_{result.game_id}.result.json"
 
+    # Transcript structure per tech-design sec 5: game_id, seed, scenario,
+    # turns, accusations, votes, outcome. (Accusations/votes/outcome were
+    # added to match the design's transcript format; orchestrator contract
+    # tests only assert game_id/turns presence, so extra keys are safe.)
     transcript_data = {
         "game_id": result.game_id,
         "seed": result.seed,
         "scenario": result.scenario,
         "turns": [_exchange_to_dict(ex) for ex in (transcript or [])],
+        "accusations": [asdict(acc) for acc in (result.accusations or [])],
+        "votes": [dict(v) if isinstance(v, dict) else v for v in (result.votes or [])],
+        "outcome": {
+            "traitor_caught": result.traitor_caught,
+            "tie": result.tie,
+            "no_accusation": result.no_accusation,
+            "most_accused": result.most_accused,
+        },
     }
 
     _atomic_write_json(transcript_path, transcript_data)

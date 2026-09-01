@@ -31,9 +31,9 @@ try:
     )
     from traitors_mobile.scenario import build_scenario, default_scenario
     from traitors_mobile.player import PlayerAgent
-    from traitors_mobile.orchestrator import GameConfig, run_game
+    from traitors_mobile.orchestrator import GameConfig, run_game, GameAbortedError
     from traitors_mobile.metrics import run_batch, compute_metrics, write_report
-    from traitors_mobile.llm_backend import create_backend, MockBackend, BackendUnavailableError, GameAbortedError
+    from traitors_mobile.llm_backend import create_backend, MockBackend, BackendUnavailableError
 except ImportError as e:
     # Test file structure exists even if integration.py doesn't yet
     pass
@@ -267,17 +267,28 @@ class TestBuildGameComponents:
         config = load_config()
         config.backend.provider = "mock"
         backend = create_backend(config.backend)
-        
+
         scenario, players, game_config = build_game_components(config, seed=42, game_id="test-1", backend=backend)
-        
-        # Spot-check: Traitor's role_card should not be in non-traitor players
-        traitor_player_id = next(pid for pid, p in players.items() if p.role == "Traitor")
-        traitor_role_card = players[traitor_player_id].role_card
-        
+
+        # Spot-check: the Traitor's private material (crime declaration,
+        # cover story) must not appear in any non-traitor player's card.
+        # (Engineer, SWA-161: the original compared `p.role == "Traitor"`
+        # and called `role_card.lower()`, but PlayerAgent exposes no `.role`
+        # and role cards are RoleCard dataclasses, not strings -- the test
+        # was rewritten against the canonical `players_by_role` lookup and
+        # the real card contents, keeping the same no-leakage intent.)
+        traitor_player_id = scenario.players_by_role["traitor"]
+        traitor_player = players[traitor_player_id]
+        traitor_declaration = (traitor_player.role_card.crime_declaration or "").lower()
+        traitor_cover_story = (traitor_player.role_card.cover_story or "").lower()
+
         for pid, player in players.items():
             if pid != traitor_player_id:
-                # Non-traitor player should not have Traitor's crime in their card
-                assert "crime" not in player.role_card.lower() or traitor_role_card not in player.role_card
+                card_text = " ".join(
+                    [player.role_card.goal] + list(player.role_card.observations)
+                ).lower()
+                assert traitor_declaration not in card_text
+                assert traitor_cover_story not in card_text
 
     def test_build_game_components_propagates_scenario_error(self):
         """build_game_components propagates ScenarioError from build_scenario."""
@@ -291,13 +302,18 @@ class TestBuildGameComponents:
             build_game_components(config, seed=42, game_id="test-1", backend=backend)
 
     def test_build_game_components_propagates_backend_error(self):
-        """build_game_components propagates BackendError from create_backend."""
+        """build_game_components propagates backend creation errors (ConfigError)."""
         config = load_config()
         config.backend.provider = "bogus"
-        
-        from traitors_mobile.llm_backend import BackendError
-        with pytest.raises(BackendError):
-            backend = create_backend(config.backend)
+
+        # (Engineer, SWA-161: create_backend raises ConfigError for an unknown
+        # provider -- pinned by test_llm_backend.py and the llm-backend
+        # contract; the original expected BackendError. Routing through
+        # build_game_components (backend=None => it creates one) exercises
+        # the real propagation path.)
+        from traitors_mobile.llm_backend import ConfigError as BackendConfigError
+        with pytest.raises(BackendConfigError):
+            build_game_components(config, seed=42, game_id="test-1")
 
 
 class TestMainRunSingleWithMock:

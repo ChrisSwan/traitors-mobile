@@ -1,0 +1,27 @@
+{
+  "_comment": "Example config for traitors-mobile (Mode B simulation). Copy to config.json and edit. Every section/key is optional -- omitted keys use the built-in defaults. The Claude API key is NEVER stored here: it is read from the ANTHROPIC_API_KEY environment variable at runtime (e.g. `source ~/.hermes/.env` before running). Provider options: claude | ollama | mock (mock = deterministic dry run, no network).",
+  "backend": {
+    "provider": "claude",
+    "model": "claude-haiku-4-5",
+    "timeout_seconds": 60,
+    "max_retries": 3,
+    "retry_backoff_base_seconds": 2.0,
+    "ollama_base_url": "http://192.168.0.38:11434"
+  },
+  "run": {
+    "num_games": 10,
+    "rounds_per_game": 6,
+    "seed": null,
+    "output_dir": "output"
+  },
+  "scenario": {
+    "template": "stolen-prize-tin"
+  },
+  "cast": {
+    "traitor": "The Abbotts",
+    "detective": "The Murphys",
+    "loyalist_a": "The Chens",
+    "loyalist_b": "The Patels",
+    "loyalist_c": "The Okayes"
+  }
+}
