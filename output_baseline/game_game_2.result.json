@@ -1,6 +1,6 @@
 {
   "game_id": "game_2",
-  "seed": 1960783610,
+  "seed": 1576453131,
   "scenario": "stolen-prize-tin",
   "traitor_id": "The Abbotts",
   "votes": [
@@ -18,7 +18,7 @@
     },
     {
       "player": "The Patels",
-      "vote": "The Abbotts"
+      "vote": "no accusation"
     },
     {
       "player": "The Okayes",
@@ -26,19 +26,19 @@
     }
   ],
   "vote_tally": {
-    "The Abbotts": 1,
+    "The Abbotts": 0,
     "The Murphys": 0,
     "The Chens": 0,
     "The Patels": 0,
     "The Okayes": 0
   },
-  "valid_votes": 1,
+  "valid_votes": 5,
   "invalid_votes": [],
-  "traitor_caught": true,
-  "most_accused": "The Abbotts",
+  "traitor_caught": false,
+  "most_accused": null,
   "tie": false,
-  "no_accusation": false,
-  "exchange_count": 25,
+  "no_accusation": true,
+  "exchange_count": 30,
   "accusations": [],
   "status": "completed",
   "abort_reason": null

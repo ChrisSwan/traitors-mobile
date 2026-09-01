@@ -13,5 +13,5 @@
 
 | game_id | seed | traitor_caught | exchange_count | most_accused |
 |---------|------|----------------|----------------|--------------|
-| game_0 | 1110509713 | False | 30 | None |
-| game_1 | 1213132231 | False | 30 | None |
+| game_0 | 232006354 | False | 30 | None |
+| game_1 | 460272311 | False | 30 | None |

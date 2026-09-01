@@ -1,6 +1,6 @@
 {
-  "game_id": "game_0",
-  "seed": 232006354,
+  "game_id": "game_6",
+  "seed": 280006537,
   "scenario": "stolen-prize-tin",
   "traitor_id": "The Abbotts",
   "votes": [
@@ -22,24 +22,31 @@
     },
     {
       "player": "The Okayes",
-      "vote": "no accusation"
+      "vote": "The Chens"
     }
   ],
   "vote_tally": {
     "The Abbotts": 0,
     "The Murphys": 0,
-    "The Chens": 0,
+    "The Chens": 1,
     "The Patels": 0,
     "The Okayes": 0
   },
-  "valid_votes": 5,
+  "valid_votes": 1,
   "invalid_votes": [],
   "traitor_caught": false,
-  "most_accused": null,
+  "most_accused": "The Chens",
   "tie": false,
-  "no_accusation": true,
+  "no_accusation": false,
   "exchange_count": 30,
-  "accusations": [],
+  "accusations": [
+    {
+      "turn": 26,
+      "accuser": "The Okayes",
+      "target": "The Abbotts",
+      "reason": "The Abbotts' confirmed absence from the bar during 8:45-9:00pm, their corridor presence at 8:40pm when the office was unlocked, and the timing of office access shortly after their return creates the most coherent timeline connecting them to the theft."
+    }
+  ],
   "status": "completed",
   "abort_reason": null
 }

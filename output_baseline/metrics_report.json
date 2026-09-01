@@ -1,0 +1,83 @@
+{
+  "catch_rate": 0.3,
+  "mean_exchanges": 30,
+  "accusation_usage": {
+    "games_with_formal_accusation": 1,
+    "mean_formal_accusations_per_game": 0.1,
+    "fraction_of_games": 0.1
+  },
+  "games_completed": 10,
+  "games_aborted": [],
+  "game_summaries": [
+    {
+      "game_id": "game_0",
+      "seed": 1650797273,
+      "traitor_caught": true,
+      "exchange_count": 30,
+      "most_accused": "The Abbotts"
+    },
+    {
+      "game_id": "game_1",
+      "seed": 845795689,
+      "traitor_caught": false,
+      "exchange_count": 30,
+      "most_accused": null
+    },
+    {
+      "game_id": "game_2",
+      "seed": 1576453131,
+      "traitor_caught": false,
+      "exchange_count": 30,
+      "most_accused": null
+    },
+    {
+      "game_id": "game_3",
+      "seed": 1917100637,
+      "traitor_caught": true,
+      "exchange_count": 30,
+      "most_accused": "The Abbotts"
+    },
+    {
+      "game_id": "game_4",
+      "seed": 837017661,
+      "traitor_caught": false,
+      "exchange_count": 30,
+      "most_accused": null
+    },
+    {
+      "game_id": "game_5",
+      "seed": 439957877,
+      "traitor_caught": false,
+      "exchange_count": 30,
+      "most_accused": null
+    },
+    {
+      "game_id": "game_6",
+      "seed": 280006537,
+      "traitor_caught": false,
+      "exchange_count": 30,
+      "most_accused": "The Chens"
+    },
+    {
+      "game_id": "game_7",
+      "seed": 508352921,
+      "traitor_caught": false,
+      "exchange_count": 30,
+      "most_accused": null
+    },
+    {
+      "game_id": "game_8",
+      "seed": 1444722183,
+      "traitor_caught": false,
+      "exchange_count": 30,
+      "most_accused": null
+    },
+    {
+      "game_id": "game_9",
+      "seed": 1901811593,
+      "traitor_caught": true,
+      "exchange_count": 30,
+      "most_accused": "The Abbotts"
+    }
+  ]
+}

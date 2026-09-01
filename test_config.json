@@ -4,10 +4,6 @@
   },
   "run": {
     "num_games": 2,
-    "rounds_per_game": 6,
     "output_dir": "output_test"
-  },
-  "scenario": {
-    "template": "stolen-prize-tin"
   }
 }

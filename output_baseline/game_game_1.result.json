@@ -1,6 +1,6 @@
 {
   "game_id": "game_1",
-  "seed": 510915088,
+  "seed": 845795689,
   "scenario": "stolen-prize-tin",
   "traitor_id": "The Abbotts",
   "votes": [
@@ -38,7 +38,7 @@
   "most_accused": null,
   "tie": false,
   "no_accusation": true,
-  "exchange_count": 25,
+  "exchange_count": 30,
   "accusations": [],
   "status": "completed",
   "abort_reason": null

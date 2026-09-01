@@ -1,0 +1,343 @@
+{
+  "game_id": "game_6",
+  "seed": 280006537,
+  "scenario": "stolen-prize-tin",
+  "turns": [
+    {
+      "turn": 1,
+      "phase": "opening",
+      "speaker": "The Abbotts",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"statement\",\n  \"content\": \"I arrived quite early this evening, around 7:10pm, and I was in and out of the bar area throughout the night. I did notice the office door was unlocked when I walked past around 8:40pm on my way to the toilets — seemed a bit unusual but I didn't think much of it at the time.\",\n  \"target\": \"\",\n  \"reason\": \"\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target must be a named player"
+    },
+    {
+      "turn": 2,
+      "phase": "opening",
+      "speaker": "The Murphys",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"question\",\n  \"content\": \"You mentioned walking past the office around 8:40pm on your way to the toilets. Did you notice anyone else in that corridor area at the same time, or did you see anyone entering or leaving the office itself?\",\n  \"target\": \"?\",\n  \"reason\": \"This establishes their positioning during the critical crime window and tests their awareness of other movements in that area\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target '?' is not in the cast"
+    },
+    {
+      "turn": 3,
+      "phase": "opening",
+      "speaker": "The Chens",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"corroboration\",\n  \"content\": \"I can confirm that the office corridor door was indeed ajar around 8:40pm. I noticed it while talking near the stage and assumed it was the caretaker. However, when I walked through the corridor at 8:50pm, the office door was closed. This suggests someone was in that area during the critical window.\",\n  \"target\": \"\",\n  \"reason\": \"\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target must be a named player"
+    },
+    {
+      "turn": 4,
+      "phase": "opening",
+      "speaker": "The Patels",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"question\",\n  \"content\": \"You mentioned seeing the office door ajar at 8:40pm and then closed at 8:50pm. During that 10-minute window, did you see anyone moving through the corridor, or notice any sounds coming from the office area?\",\n  \"target\": \"?\",\n  \"reason\": \"This targets the corroborator's account to establish whether they observed actual movement during the critical crime window, which would help narrow down who had opportunity.\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target '?' is not in the cast"
+    },
+    {
+      "turn": 5,
+      "phase": "opening",
+      "speaker": "The Okayes",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"question\",\n  \"content\": \"I'm trying to establish the timeline more clearly. You mentioned the office door was ajar at 8:40pm and then closed at 8:50pm. Between those times, did you actually see anyone entering or leaving the office, or are you only reporting the change in door position?\",\n  \"target\": \"?\",\n  \"reason\": \"This clarifies whether the corroborator has direct evidence of movement during the crime window, which is crucial for identifying who had opportunity to steal the tin.\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target '?' is not in the cast"
+    },
+    {
+      "turn": 6,
+      "phase": "opening",
+      "speaker": "The Murphys",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"statement\",\n  \"content\": \"I was at the buffet table between 8:30pm and 9:05pm with a clear view down the corridor toward the office. During the 8:40pm to 9:00pm window, I observed two separate people moving toward that corridor. I could clearly identify the first person as The Chens, but I wasn't able to get a clear identification of the second person who went that direction. This second movement is particularly significant given the timing aligns with our crime window.\",\n  \"target\": \"\",\n  \"reason\": \"\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target must be a named player"
+    },
+    {
+      "turn": 7,
+      "phase": "opening",
+      "speaker": "The Chens",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"challenge\",\n  \"content\": \"I need to directly address the last statement. The claim that I was observed moving toward the corridor during 8:40pm-9:00pm conflicts with my own observations. I was talking to the event organiser near the stage during 8:15pm-8:50pm. I did notice the office corridor door ajar at approximately 8:40pm, but I didn't walk through that corridor until 8:50pm — after the person making this statement claims to have seen me heading that direction. The timeline being presented doesn't match what actually occurred.\",\n  \"target\": \"\",\n  \"reason\": \"\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target must be a named player"
+    },
+    {
+      "turn": 8,
+      "phase": "opening",
+      "speaker": "The Patels",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"question\",\n  \"content\": \"I'd like to clarify the caretaker's movements during the critical window. I saw the caretaker near the office corridor around 8:35pm, but then didn't spot them again until after the 9:00pm toast. Can the caretaker confirm where they were between 8:35pm and 9:00pm, and did they have any reason to be in or near the office during that time?\",\n  \"target\": \"caretaker\",\n  \"reason\": \"The caretaker's presence near the office at 8:35pm followed by absence during the crime window needs clarification, especially given the unlocked office and the door position changes others have reported.\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target 'caretaker' is not in the cast"
+    },
+    {
+      "turn": 9,
+      "phase": "opening",
+      "speaker": "The Okayes",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"question\",\n  \"content\": \"I want to clarify my own observations from around 8:58pm to 9:03pm. When I passed the office at 8:58pm, the door was closed and nothing seemed unusual. But when I came back through the corridor at 9:03pm, the office door was open with the light on. Can anyone account for who opened that door and turned on the light during that narrow five-minute window?\",\n  \"target\": \"group\",\n  \"reason\": \"This pins down a specific and narrow timeframe where the office was definitely accessed, and invites anyone present in that corridor area to explain the change in the office state.\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target 'group' is not in the cast"
+    },
+    {
+      "turn": 10,
+      "phase": "opening",
+      "speaker": "The Abbotts",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"statement\",\n  \"content\": \"I want to clarify my earlier observations. When I walked past the office around 8:40pm on my way to the toilets, the door was definitely unlocked and ajar. I was back at the bar by 8:57pm, just before the toast. What I'm finding confusing is the conflicting accounts about who was seen in the corridor and when. The timeline people are describing doesn't seem to match up cleanly, and I'm concerned we're not getting a clear picture of who actually had opportunity during that critical 8:40 to 8:55 window.\",\n  \"target\": \"\",\n  \"reason\": \"\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target must be a named player"
+    },
+    {
+      "turn": 11,
+      "phase": "interrogation",
+      "speaker": "The Abbotts",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"question\",\n  \"content\": \"I'm trying to make sense of the timeline that's been presented. Several people have mentioned seeing movements in the corridor between 8:40pm and 9:00pm, but the accounts are conflicting. Can you clarify — when you said you observed two separate people moving toward the corridor during that window, were you able to see them actually enter the office, or were you only seeing them pass by in the corridor itself?\",\n  \"target\": \"the person who claimed to see two people from the buffet table\",\n  \"reason\": \"This question targets the most detailed eyewitness account to establish whether they have direct evidence of office access during the crime window, which is critical for determining who had actual opportunity to steal the tin.\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target 'the person who claimed to see two people from the buffet table' is not in the cast"
+    },
+    {
+      "turn": 12,
+      "phase": "interrogation",
+      "speaker": "The Murphys",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"statement\",\n  \"content\": \"I need to clarify what I observed from my position at the buffet table between 8:30pm and 9:05pm. I had a clear sightline down the corridor toward the office during the critical window. Between 8:40pm and 9:00pm, I saw two separate people move toward that corridor. The first was clearly The Chens. However, I couldn't get a clear identification of the second person — they moved quickly and I didn't see their face clearly enough to be certain of their identity. What troubles me is that this second person's movement aligns precisely with our crime window, and I simply cannot confirm who it was.\",\n  \"target\": \"\",\n  \"reason\": \"\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target must be a named player"
+    },
+    {
+      "turn": 13,
+      "phase": "interrogation",
+      "speaker": "The Chens",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"challenge\",\n  \"content\": \"I need to address the repeated claim about seeing me move toward the corridor during 8:40pm-9:00pm. This is factually incorrect. I was talking with the event organiser near the stage continuously from 8:15pm to 8:50pm. At approximately 8:40pm, I noticed the office corridor door ajar from my position near the stage — I didn't walk through that corridor until 8:50pm. The person claiming to have seen me heading toward the corridor during the 8:40-9:00pm window is either mistaken about the timing or mistaken about my identity. This misidentification is crucial because it's being used to suggest I had opportunity during the crime window, when my timeline is clearly documented.\",\n  \"target\": \"\",\n  \"reason\": \"\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target must be a named player"
+    },
+    {
+      "turn": 14,
+      "phase": "interrogation",
+      "speaker": "The Patels",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"statement\",\n  \"content\": \"I need to clarify my own observations from the evening. I was at the bar from 8:20pm until the 9:00pm toast. During that time, I saw The Abbotts at the bar earlier in the evening, but they were noticeably absent from approximately 8:45pm until just before the toast started. I also observed someone near the office corridor at around 8:35pm, then didn't see them again until after the toast. What concerns me is that The Abbotts' absence during the critical 8:40-8:55pm window, combined with them appearing slightly flustered when they returned, warrants closer examination of their whereabouts during that specific timeframe.\",\n  \"target\": \"\",\n  \"reason\": \"\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target must be a named player"
+    },
+    {
+      "turn": 15,
+      "phase": "interrogation",
+      "speaker": "The Okayes",
+      "action_type": "question",
+      "content": "I want to return to the timeline of the office door changes that I directly observed. At 8:58pm the office door was closed with nothing unusual. By 9:03pm, the door was open with the light on. That's a five-minute window where someone accessed the office. Can The Abbotts account for their specific whereabouts between 8:58pm and 9:03pm, given that they were reportedly absent from the bar during the broader critical window?",
+      "target": "The Abbotts",
+      "reason": "The Abbotts' absence from 8:45pm until just before the toast, combined with my direct observation of the office being accessed between 8:58-9:03pm, creates a tight temporal overlap that needs clarification. This targets the most suspicious timeline gap with a specific, narrow window I can personally verify.",
+      "non_compliant_reason": null
+    },
+    {
+      "turn": 16,
+      "phase": "interrogation",
+      "speaker": "The Chens",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"question\",\n  \"content\": \"I want to clarify the timeline around the office access that was observed between 8:58pm and 9:03pm. I was in the corridor at 8:50pm and the office door was closed at that point. The question about who accessed the office in that later window is important. Can you help me understand — when you observed the office door open with the light on at 9:03pm, did you see anyone actually in the office, or were you only noting the change in door and light status?\",\n  \"target\": \"the person who observed the 8:58-9:03pm office access\",\n  \"reason\": \"This clarifies whether there's direct evidence of someone being in the office during that specific window, which is crucial for distinguishing between who had actual opportunity versus who was simply moving through the corridor.\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target 'the person who observed the 8:58-9:03pm office access' is not in the cast"
+    },
+    {
+      "turn": 17,
+      "phase": "interrogation",
+      "speaker": "The Patels",
+      "action_type": "question",
+      "content": "I want to return to my own observations from the bar. I saw The Abbotts at the bar earlier, but they were definitely absent from around 8:45pm until just before the 9:00pm toast. During that same window, someone was observed accessing the office between 8:58pm and 9:03pm. The Abbotts, can you account for where you were specifically between 8:45pm and 9:00pm? What were you doing during that time when you were away from the bar?",
+      "target": "The Abbotts",
+      "reason": "The Abbotts' absence from the bar during the critical crime window (8:40-8:55pm), combined with the later observation of office access (8:58-9:03pm), creates a suspicious timeline gap. Their flustered appearance upon return also warrants explanation. This directly targets the most suspicious movement pattern I personally observed.",
+      "non_compliant_reason": null
+    },
+    {
+      "turn": 18,
+      "phase": "interrogation",
+      "speaker": "The Abbotts",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"statement\",\n  \"content\": \"I appreciate the direct question. I need to be clear about my movements during that window. I was at the bar from 8:20pm through the evening. Around 8:40pm, I did step away briefly to use the toilets — that's when I noticed the office door was unlocked and ajar as I walked past the corridor. I returned to the bar shortly after, well before the 9:00pm toast. I understand the timeline looks suspicious given the observations people are reporting, but I want to emphasize that I was never near the office itself, only passed by the corridor on my way to the facilities. The flustered appearance mentioned — I'm not sure what that refers to, but I can assure everyone my movements were straightforward and innocent.\",\n  \"target\": \"\",\n  \"reason\": \"\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target must be a named player"
+    },
+    {
+      "turn": 19,
+      "phase": "interrogation",
+      "speaker": "The Okayes",
+      "action_type": "question",
+      "content": "I need to clarify something important about the timeline. You mentioned stepping away to use the toilets around 8:40pm and noticing the office door was unlocked and ajar at that time. But I was in that corridor at 8:58pm — just 18 minutes later — and the door was closed with nothing unusual. Then at 9:03pm, the door was open with the light on. Can you help me understand: did you see anyone else in the corridor when you were there around 8:40pm, and do you have any explanation for who might have accessed the office in that later 8:58-9:03pm window?",
+      "target": "The Abbotts",
+      "reason": "This question directly addresses the gap between The Abbotts' confirmed corridor presence at 8:40pm and my own observations of the office state changing between 8:58-9:03pm. It seeks to establish whether they noticed other suspicious activity and whether their brief toilet trip adequately accounts for their absence from the bar during the critical window.",
+      "non_compliant_reason": null
+    },
+    {
+      "turn": 20,
+      "phase": "interrogation",
+      "speaker": "The Murphys",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"statement\",\n  \"content\": \"I need to share what I directly observed from my position at the buffet table between 8:30pm and 9:05pm. I had a clear sightline down the corridor toward the office. Between 8:40pm and 9:00pm, I observed two separate people moving toward that corridor. The first person was clearly The Chens — I could identify them without difficulty. However, the second person moved quickly and I was unable to get a clear view of their face or distinctive features. What concerns me most is that this unidentified second movement occurs precisely within our established crime window of 8:40pm to 8:55pm. Combined with the conflicting accounts about office door positions and The Abbotts' absence from the bar during this same critical period, I believe we need to focus on establishing who that second person was.\",\n  \"target\": \"\",\n  \"reason\": \"\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target must be a named player"
+    },
+    {
+      "turn": 21,
+      "phase": "pressure",
+      "speaker": "The Abbotts",
+      "action_type": "statement",
+      "content": "When I was in the corridor around 8:40pm heading to the toilets, I didn't see anyone else in that area at that moment. The office door was unlocked and ajar as I passed, but I didn't linger or look closely — I was focused on getting to the facilities. As for the later window you're describing at 8:58pm to 9:03pm, I have no direct knowledge of that. I was back at the bar by 8:57pm, just before the toast. I can't explain who accessed the office in that later timeframe, but it wasn't me. My brief absence was solely for the toilet visit around 8:40pm, and I returned promptly to the bar area.",
+      "target": "The Okayes",
+      "reason": "",
+      "non_compliant_reason": null
+    },
+    {
+      "turn": 22,
+      "phase": "pressure",
+      "speaker": "The Murphys",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"question\",\n  \"content\": \"I want to clarify the observations about the second person moving toward the corridor between 8:40pm and 9:00pm. You mentioned seeing two people from your buffet table position — The Chens first, then an unidentified second person. Can you describe more specifically what you observed about this second person's movements? Did they enter the office corridor, or did they pass by in a different direction? And critically, did you see them return from that direction before 9:00pm?\",\n  \"target\": \"the buffet table observer\",\n  \"reason\": \"The unidentified second person observed during the exact crime window (8:40-8:55pm) is the most suspicious lead. Clarifying whether they actually entered the office corridor and whether they returned helps establish who had genuine opportunity to steal the tin. This is more productive than continuing to press The Abbotts, whose toilet visit at 8:40pm is plausibly innocent.\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target 'the buffet table observer' is not in the cast"
+    },
+    {
+      "turn": 23,
+      "phase": "pressure",
+      "speaker": "The Chens",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"question\",\n  \"content\": \"I want to return to the critical observation about the second person moving toward the corridor between 8:40pm and 9:00pm. You mentioned seeing two people from your position at the buffet table — The Chens first, then an unidentified second person you couldn't clearly identify. Can you describe more specifically what you observed about this second person's movements? Did they enter the office corridor, or pass by in a different direction? And crucially, did you see them return from that direction before 9:00pm?\",\n  \"target\": \"\",\n  \"reason\": \"The unidentified second person observed during the exact crime window (8:40-8:55pm) is the most suspicious lead we have. Clarifying whether they actually entered the office corridor and whether they returned helps establish who had genuine opportunity to steal the tin. This is more productive than continuing to press individual suspects without concrete evidence.\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "question requires a named target"
+    },
+    {
+      "turn": 24,
+      "phase": "pressure",
+      "speaker": "The Patels",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"question\",\n  \"content\": \"I want to return to the critical observation about the second person moving toward the corridor between 8:40pm and 9:00pm. You mentioned seeing two people from your position at the buffet table — The Chens first, then an unidentified second person you couldn't clearly identify. Can you describe more specifically what you observed about this second person's movements? Did they enter the office corridor, or pass by in a different direction? And crucially, did you see them return from that direction before 9:00pm?\",\n  \"target\": \"buffet table observer\",\n  \"reason\": \"The unidentified second person observed during the exact crime window (8:40-8:55pm) is the most suspicious lead we have. Clarifying whether they actually entered the office corridor and whether they returned helps establish who had genuine opportunity to steal the tin.\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target 'buffet table observer' is not in the cast"
+    },
+    {
+      "turn": 25,
+      "phase": "pressure",
+      "speaker": "The Okayes",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"question\",\n  \"content\": \"I want to focus on the critical observation about the second person moving toward the corridor between 8:40pm and 9:00pm. You mentioned seeing two people from your position at the buffet table — The Chens first, then an unidentified second person you couldn't clearly identify. Can you describe more specifically what you observed about this second person's movements? Did they enter the office corridor, or pass by in a different direction? And crucially, did you see them return from that direction before 9:00pm?\",\n  \"target\": \"\",\n  \"reason\": \"The unidentified second person observed during the exact crime window (8:40-8:55pm) is the most suspicious lead we have. Clarifying whether they actually entered the office corridor and whether they returned helps establish who had genuine opportunity to steal the tin. This is more productive than continuing to press individual suspects without concrete evidence.\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "question requires a named target"
+    },
+    {
+      "turn": 26,
+      "phase": "closing",
+      "speaker": "The Okayes",
+      "action_type": "formal_accusation",
+      "content": "Based on the timeline evidence presented, I believe The Abbotts stole the tin. They were absent from the bar during the critical 8:40-8:55pm crime window, they passed through the corridor around 8:40pm when the office door was unlocked and ajar, and their movements align with the office access observed between 8:58-9:03pm. While they claim their absence was only for a brief toilet visit, the combination of their suspicious absence, their proximity to the unlocked office, and their flustered appearance upon return creates the strongest case against them.",
+      "target": "The Abbotts",
+      "reason": "The Abbotts' confirmed absence from the bar during 8:45-9:00pm, their corridor presence at 8:40pm when the office was unlocked, and the timing of office access shortly after their return creates the most coherent timeline connecting them to the theft.",
+      "non_compliant_reason": null
+    },
+    {
+      "turn": 27,
+      "phase": "closing",
+      "speaker": "The Abbotts",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"challenge\",\n  \"content\": \"I need to directly address the formal accusation against me. The timeline being presented is fundamentally flawed. Yes, I stepped away around 8:40pm to use the toilets — I've been consistent about that. I noticed the office door was unlocked and ajar as I passed, which I reported honestly. But I was back at the bar by 8:57pm, well before the 9:00pm toast. The accusation conflates my toilet visit with the later office access observed at 8:58-9:03pm — a window when I was already back at the bar. The person claiming to have seen me 'flustered' upon return hasn't specified what that observation actually means. My movements are straightforward and innocent. What troubles me is that this accusation seems designed to redirect focus from the unidentified second person the buffet table observer mentioned — the person actually moving toward the corridor during the established 8:40-8:55pm crime window. That unidentified individual remains the real suspicious lead.\",\n  \"target\": \"The Okayes\",\n  \"reason\": \"",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "could not extract an action from the reply"
+    },
+    {
+      "turn": 28,
+      "phase": "closing",
+      "speaker": "The Murphys",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"challenge\",\n  \"content\": \"I need to address a critical flaw in the accusation against The Abbotts. The timeline being presented conflates two separate observations. The Abbotts were observed in the corridor around 8:40pm during their toilet visit — that's confirmed. However, I personally observed the office door closed at 8:58pm and then open with the light on at 9:03pm. The Abbotts claim they were back at the bar by 8:57pm. That means the office access in the 8:58-9:03pm window cannot have been them. What we should be focusing on is the unidentified second person the buffet table observer saw moving toward the corridor between 8:40pm and 9:00pm — during the actual crime window. That person remains unaccounted for and represents the strongest lead. The accusation against The Abbotts appears to be misdirection from the real suspect.\",\n  \"target\": \"The Okayes\",\n  \"reason\": \"The Abbotts' timeline is consistent with their claims; the real suspicious movement is the",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "could not extract an action from the reply"
+    },
+    {
+      "turn": 29,
+      "phase": "closing",
+      "speaker": "The Chens",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"challenge\",\n  \"content\": \"I need to address the critical flaw in the accusation against The Abbotts. The timeline conflates two separate events. The Abbotts were in the corridor around 8:40pm during their toilet visit — confirmed. However, I personally observed the office door closed at 8:58pm and then open with light on at 9:03pm. The Abbotts claim they were back at the bar by 8:57pm, which means they cannot account for the 8:58-9:03pm office access. What remains unresolved is the unidentified second person the buffet table observer saw moving toward the corridor between 8:40pm and 9:00pm — during the actual crime window. That person has never been clearly identified and represents the genuine suspicious movement. The accusation against The Abbotts appears to redirect focus from the real unaccounted-for suspect.\",\n  \"target\": \"\",\n  \"reason\": \"\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target must be a named player"
+    },
+    {
+      "turn": 30,
+      "phase": "closing",
+      "speaker": "The Patels",
+      "action_type": "non_compliant",
+      "content": "```json\n{\n  \"action_type\": \"challenge\",\n  \"content\": \"I need to address a critical inconsistency in the timeline being used against The Abbotts. They were observed in the corridor around 8:40pm during a toilet visit and claim they returned to the bar by 8:57pm. However, I personally observed the office door closed at 8:58pm and then open with the light on at 9:03pm. If The Abbotts were back at the bar by 8:57pm, they cannot account for the office access in the 8:58-9:03pm window. The real unresolved question remains: who was the unidentified second person the buffet table observer saw moving toward the corridor between 8:40pm and 9:00pm — during the actual crime window? That person has never been clearly identified and represents the most suspicious movement. We should be focusing on that unaccounted-for individual rather than The Abbotts.\",\n  \"target\": \"\",\n  \"reason\": \"\"\n}\n```",
+      "target": null,
+      "reason": null,
+      "non_compliant_reason": "target must be a named player"
+    }
+  ],
+  "accusations": [
+    {
+      "turn": 26,
+      "accuser": "The Okayes",
+      "target": "The Abbotts",
+      "reason": "The Abbotts' confirmed absence from the bar during 8:45-9:00pm, their corridor presence at 8:40pm when the office was unlocked, and the timing of office access shortly after their return creates the most coherent timeline connecting them to the theft."
+    }
+  ],
+  "votes": [
+    {
+      "player": "The Abbotts",
+      "vote": "no accusation"
+    },
+    {
+      "player": "The Murphys",
+      "vote": "no accusation"
+    },
+    {
+      "player": "The Chens",
+      "vote": "no accusation"
+    },
+    {
+      "player": "The Patels",
+      "vote": "no accusation"
+    },
+    {
+      "player": "The Okayes",
+      "vote": "The Chens"
+    }
+  ],
+  "outcome": {
+    "traitor_caught": false,
+    "tie": false,
+    "no_accusation": false,
+    "most_accused": "The Chens"
+  }
+}

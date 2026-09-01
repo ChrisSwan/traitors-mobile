@@ -1,6 +1,6 @@
 {
   "game_id": "game_0",
-  "seed": 1110509713,
+  "seed": 232006354,
   "scenario": "stolen-prize-tin",
   "turns": [
     {
@@ -56,7 +56,7 @@
     {
       "turn": 6,
       "phase": "opening",
-      "speaker": "The Abbotts",
+      "speaker": "The Patels",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -66,7 +66,7 @@
     {
       "turn": 7,
       "phase": "opening",
-      "speaker": "The Murphys",
+      "speaker": "The Okayes",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -76,7 +76,7 @@
     {
       "turn": 8,
       "phase": "opening",
-      "speaker": "The Chens",
+      "speaker": "The Abbotts",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -86,7 +86,7 @@
     {
       "turn": 9,
       "phase": "opening",
-      "speaker": "The Patels",
+      "speaker": "The Murphys",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -96,7 +96,7 @@
     {
       "turn": 10,
       "phase": "opening",
-      "speaker": "The Okayes",
+      "speaker": "The Chens",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -106,7 +106,7 @@
     {
       "turn": 11,
       "phase": "interrogation",
-      "speaker": "The Abbotts",
+      "speaker": "The Chens",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -116,7 +116,7 @@
     {
       "turn": 12,
       "phase": "interrogation",
-      "speaker": "The Murphys",
+      "speaker": "The Patels",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -126,7 +126,7 @@
     {
       "turn": 13,
       "phase": "interrogation",
-      "speaker": "The Chens",
+      "speaker": "The Okayes",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -136,7 +136,7 @@
     {
       "turn": 14,
       "phase": "interrogation",
-      "speaker": "The Patels",
+      "speaker": "The Abbotts",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -146,7 +146,7 @@
     {
       "turn": 15,
       "phase": "interrogation",
-      "speaker": "The Okayes",
+      "speaker": "The Murphys",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -156,7 +156,7 @@
     {
       "turn": 16,
       "phase": "interrogation",
-      "speaker": "The Chens",
+      "speaker": "The Okayes",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -166,7 +166,7 @@
     {
       "turn": 17,
       "phase": "interrogation",
-      "speaker": "The Patels",
+      "speaker": "The Abbotts",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -176,7 +176,7 @@
     {
       "turn": 18,
       "phase": "interrogation",
-      "speaker": "The Okayes",
+      "speaker": "The Murphys",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -186,7 +186,7 @@
     {
       "turn": 19,
       "phase": "interrogation",
-      "speaker": "The Abbotts",
+      "speaker": "The Chens",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -196,7 +196,7 @@
     {
       "turn": 20,
       "phase": "interrogation",
-      "speaker": "The Murphys",
+      "speaker": "The Patels",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -206,7 +206,7 @@
     {
       "turn": 21,
       "phase": "pressure",
-      "speaker": "The Okayes",
+      "speaker": "The Murphys",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -216,7 +216,7 @@
     {
       "turn": 22,
       "phase": "pressure",
-      "speaker": "The Abbotts",
+      "speaker": "The Chens",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -226,7 +226,7 @@
     {
       "turn": 23,
       "phase": "pressure",
-      "speaker": "The Murphys",
+      "speaker": "The Patels",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -236,7 +236,7 @@
     {
       "turn": 24,
       "phase": "pressure",
-      "speaker": "The Chens",
+      "speaker": "The Okayes",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,
@@ -246,7 +246,7 @@
     {
       "turn": 25,
       "phase": "pressure",
-      "speaker": "The Patels",
+      "speaker": "The Abbotts",
       "action_type": "non_compliant",
       "content": "{\"action_type\": \"statement\", \"content\": \"I recall the office door being ajar near the corridor around 8:40pm.\", \"target\": \"\", \"reason\": \"\"}",
       "target": null,

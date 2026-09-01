@@ -1,0 +1,9 @@
+{
+  "backend": {
+    "provider": "claude"
+  },
+  "run": {
+    "num_games": 10,
+    "output_dir": "output_baseline"
+  }
+}

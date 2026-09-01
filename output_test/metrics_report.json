@@ -11,14 +11,14 @@
   "game_summaries": [
     {
       "game_id": "game_0",
-      "seed": 1110509713,
+      "seed": 232006354,
       "traitor_caught": false,
       "exchange_count": 30,
       "most_accused": null
     },
     {
       "game_id": "game_1",
-      "seed": 1213132231,
+      "seed": 460272311,
       "traitor_caught": false,
       "exchange_count": 30,
       "most_accused": null

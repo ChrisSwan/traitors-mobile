@@ -1,0 +1,4 @@
+Backend probe (claude): available=True
+Batch complete: 10 game(s) completed, 0 aborted, catch_rate=0.3
+Report: output_baseline/metrics_report.json
+Summary: output_baseline/metrics_report.md
