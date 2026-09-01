@@ -1,0 +1,14 @@
+{
+  "backend": {
+    "provider": "claude",
+    "model": "claude-haiku-4-5"
+  },
+  "run": {
+    "num_games": 1,
+    "rounds_per_game": 3,
+    "output_dir": "output_real_short"
+  },
+  "scenario": {
+    "template": "stolen-prize-tin"
+  }
+}

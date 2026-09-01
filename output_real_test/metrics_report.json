@@ -1,0 +1,19 @@
+{
+  "catch_rate": null,
+  "mean_exchanges": null,
+  "accusation_usage": {
+    "games_with_formal_accusation": 0,
+    "mean_formal_accusations_per_game": 0.0,
+    "fraction_of_games": 0.0
+  },
+  "games_completed": 0,
+  "games_aborted": [
+    {
+      "game_id": "game_0",
+      "seed": 1180950143,
+      "status": "aborted",
+      "abort_reason": "Game aborted: BackendError: Claude API error (HTTP 400): Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': \"messages.0: use the top-level 'system' parameter for the initial system prompt; the directive-only form (content: [] with output_config) is accepted at any position\"}, 'request_id': 'req_011Ced3ekUTQuKP4K4nK1mfs'} (model='claude-haiku-4-5')"
+    }
+  ],
+  "game_summaries": []
+}

@@ -1,0 +1,27 @@
+{
+  "catch_rate": 0.0,
+  "mean_exchanges": 30,
+  "accusation_usage": {
+    "games_with_formal_accusation": 0,
+    "mean_formal_accusations_per_game": 0.0,
+    "fraction_of_games": 0.0
+  },
+  "games_completed": 2,
+  "games_aborted": [],
+  "game_summaries": [
+    {
+      "game_id": "game_0",
+      "seed": 1110509713,
+      "traitor_caught": false,
+      "exchange_count": 30,
+      "most_accused": null
+    },
+    {
+      "game_id": "game_1",
+      "seed": 1213132231,
+      "traitor_caught": false,
+      "exchange_count": 30,
+      "most_accused": null
+    }
+  ]
+}

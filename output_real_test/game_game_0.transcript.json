@@ -1,0 +1,14 @@
+{
+  "game_id": "game_0",
+  "seed": 1180950143,
+  "scenario": "stolen-prize-tin",
+  "turns": [],
+  "accusations": [],
+  "votes": [],
+  "outcome": {
+    "traitor_caught": false,
+    "tie": false,
+    "no_accusation": false,
+    "most_accused": null
+  }
+}

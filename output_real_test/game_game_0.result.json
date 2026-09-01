@@ -1,0 +1,18 @@
+{
+  "game_id": "game_0",
+  "seed": 1180950143,
+  "scenario": "stolen-prize-tin",
+  "traitor_id": "The Abbotts",
+  "votes": [],
+  "vote_tally": {},
+  "valid_votes": 0,
+  "invalid_votes": [],
+  "traitor_caught": false,
+  "most_accused": null,
+  "tie": false,
+  "no_accusation": false,
+  "exchange_count": 0,
+  "accusations": [],
+  "status": "aborted",
+  "abort_reason": "BackendError: Claude API error (HTTP 400): Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': \"messages.0: use the top-level 'system' parameter for the initial system prompt; the directive-only form (content: [] with output_config) is accepted at any position\"}, 'request_id': 'req_011Ced3ekUTQuKP4K4nK1mfs'} (model='claude-haiku-4-5')"
+}

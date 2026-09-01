@@ -247,13 +247,28 @@ class ClaudeBackend(LLMBackend):
         last_error: Optional[BackendError] = None
         for attempt in range(self.max_retries + 1):
             try:
-                response = self._client.messages.create(
-                    model=self.model,
-                    max_tokens=max_tokens,
-                    temperature=temperature,
-                    messages=messages,
-                    timeout=request_timeout,
-                )
+                # Extract system message from messages list (Anthropic SDK expects
+                # system as a separate parameter, not in the messages list).
+                system_message = None
+                non_system_messages = []
+                for msg in messages:
+                    if msg.get("role") == "system":
+                        system_message = msg.get("content")
+                    else:
+                        non_system_messages.append(msg)
+                
+                # Build kwargs for the API call
+                create_kwargs = {
+                    "model": self.model,
+                    "max_tokens": max_tokens,
+                    "temperature": temperature,
+                    "messages": non_system_messages,
+                    "timeout": request_timeout,
+                }
+                if system_message:
+                    create_kwargs["system"] = system_message
+                
+                response = self._client.messages.create(**create_kwargs)
                 text = response.content[0].text
                 return LLMResponse(text=text, model=self.model, raw=self._raw_dict(response))
             except anthropic.RateLimitError as exc:
