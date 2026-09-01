@@ -257,13 +257,15 @@ class ClaudeBackend(LLMBackend):
                     else:
                         non_system_messages.append(msg)
                 
-                # Build kwargs for the API call
+                # Build kwargs for the API call.
+                # Note: anthropic 1.2.0 does not expose 'temperature' as a direct parameter;
+                # it must be passed via extra_body for forward compatibility.
                 create_kwargs = {
                     "model": self.model,
                     "max_tokens": max_tokens,
-                    "temperature": temperature,
                     "messages": non_system_messages,
                     "timeout": request_timeout,
+                    "extra_body": {"temperature": temperature},
                 }
                 if system_message:
                     create_kwargs["system"] = system_message

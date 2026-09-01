@@ -1,0 +1,33 @@
+/home/chris/.hermes/hermes-agent/venv/lib/python3.11/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.7.0) or chardet (7.4.3)/charset_normalizer (3.4.4) doesn't match a supported version!
+  warnings.warn(
+Backend probe (claude): available=True
+Unexpected error: Messages.create() got an unexpected keyword argument 'temperature'
+Traceback (most recent call last):
+  File "/home/chris/sdd-projects/traitors-mobile/traitors_mobile/integration.py", line 495, in main
+    return _run(args)
+           ^^^^^^^^^^
+  File "/home/chris/sdd-projects/traitors-mobile/traitors_mobile/integration.py", line 458, in _run
+    results = run_batch(
+              ^^^^^^^^^^
+  File "/home/chris/sdd-projects/traitors-mobile/traitors_mobile/metrics.py", line 91, in run_batch
+    result = run_game(scenario, players, game_config, game_id=game_id)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chris/sdd-projects/traitors-mobile/traitors_mobile/orchestrator.py", line 485, in run_game
+    action = perform_turn(speaker, round_info, must)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chris/sdd-projects/traitors-mobile/traitors_mobile/orchestrator.py", line 471, in perform_turn
+    action = agents[speaker].act(transcript, round_info, must_respond_to=must)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chris/sdd-projects/traitors-mobile/traitors_mobile/player.py", line 614, in act
+    return self._generate_action(transcript, round_info, must_respond_to)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chris/sdd-projects/traitors-mobile/traitors_mobile/player.py", line 652, in _generate_action
+    response = self.backend.complete(messages, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chris/sdd-projects/traitors-mobile/traitors_mobile/llm_backend.py", line 271, in complete
+    response = self._client.messages.create(**create_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chris/.hermes/hermes-agent/venv/lib/python3.11/site-packages/anthropic/_utils/_utils.py", line 294, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+TypeError: Messages.create() got an unexpected keyword argument 'temperature'

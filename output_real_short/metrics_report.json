@@ -1,0 +1,20 @@
+{
+  "catch_rate": 0.0,
+  "mean_exchanges": 15,
+  "accusation_usage": {
+    "games_with_formal_accusation": 0,
+    "mean_formal_accusations_per_game": 0.0,
+    "fraction_of_games": 0.0
+  },
+  "games_completed": 1,
+  "games_aborted": [],
+  "game_summaries": [
+    {
+      "game_id": "game_0",
+      "seed": 2001707442,
+      "traitor_caught": false,
+      "exchange_count": 15,
+      "most_accused": "The Chens"
+    }
+  ]
+}
