@@ -1,9 +1,0 @@
-{
-  "backend": {
-    "provider": "claude"
-  },
-  "run": {
-    "num_games": 1,
-    "output_dir": "output_verification"
-  }
-}
