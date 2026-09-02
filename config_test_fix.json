@@ -1,0 +1,26 @@
+{
+  "_comment": "Test config for SWA-164 fix verification - small batch with real Claude API",
+  "backend": {
+    "provider": "claude",
+    "model": "claude-haiku-4-5",
+    "timeout_seconds": 60,
+    "max_retries": 3,
+    "retry_backoff_base_seconds": 2.0
+  },
+  "run": {
+    "num_games": 3,
+    "rounds_per_game": 6,
+    "seed": null,
+    "output_dir": "output_test_fix"
+  },
+  "scenario": {
+    "template": "stolen-prize-tin"
+  },
+  "cast": {
+    "traitor": "The Abbotts",
+    "detective": "The Murphys",
+    "loyalist_a": "The Chens",
+    "loyalist_b": "The Patels",
+    "loyalist_c": "The Okayes"
+  }
+}
