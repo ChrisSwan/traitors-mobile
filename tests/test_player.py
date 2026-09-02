@@ -849,6 +849,60 @@ class TestValidateAction:
         
         assert len(problems) > 0
 
+    def test_validate_action_empty_string_target_on_optional_target_action(self):
+        """Empty-string targets on optional-target actions (statement, challenge, etc.) are normalized to None and accepted.
+        
+        This handles Claude's reliable behavior of returning empty strings for
+        optional targets instead of null. See SWA-164.
+        """
+        action = Action(
+            action_type="statement",
+            content="I saw something suspicious",
+            target="",  # Empty string, not None
+            reason=None
+        )
+        cast_names = ["Alice", "Bob", "Carol"]
+        rules = {}
+        
+        problems = validate_action(action, cast_names, rules)
+        
+        # Should be valid - empty string on optional-target action is normalized to None
+        assert len(problems) == 0
+
+    def test_validate_action_empty_string_target_on_required_target_action_question(self):
+        """Empty-string targets on required-target actions (question) are flagged as invalid."""
+        action = Action(
+            action_type="question",
+            content="What did you see?",
+            target="",  # Empty string for a question (which requires a target)
+            reason=None
+        )
+        cast_names = ["Alice", "Bob", "Carol"]
+        rules = {}
+        
+        problems = validate_action(action, cast_names, rules)
+        
+        # Should be invalid - question requires a non-empty target
+        assert len(problems) > 0
+        assert any("question requires" in p.lower() or "target" in p.lower() for p in problems)
+
+    def test_validate_action_empty_string_target_on_required_target_action_formal_accusation(self):
+        """Empty-string targets on formal_accusation are flagged as invalid."""
+        action = Action(
+            action_type="formal_accusation",
+            content="I accuse you",
+            target="",  # Empty string for formal_accusation (which requires a target)
+            reason="You acted suspiciously"
+        )
+        cast_names = ["Alice", "Bob", "Carol"]
+        rules = {}
+        
+        problems = validate_action(action, cast_names, rules)
+        
+        # Should be invalid - formal_accusation requires a non-empty target
+        assert len(problems) > 0
+        assert any("formal_accusation requires" in p.lower() or "target" in p.lower() for p in problems)
+
 
 class TestPlayerAgentAct:
     """Test PlayerAgent.act method."""

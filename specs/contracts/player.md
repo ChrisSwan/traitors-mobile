@@ -33,7 +33,7 @@ The LLM-backed player agent: builds the per-player prompt (own role card + publi
 ## Interface
 
 ### Data types
-- `Action` dataclass: `{action_type: str, content: str, target: str | None, reason: str | None}` where `action_type ∈ {statement, question, challenge, corroboration, formal_accusation, final_vote}`. For question: `target` = named player (required); formal_accusation: `target` + `reason` (required); final_vote: `content` = a player name or `"no accusation"`, `target=None`.
+- `Action` dataclass: `{action_type: str, content: str, target: str | None, reason: str | None}` where `action_type ∈ {statement, question, challenge, corroboration, formal_accusation, final_vote}`. For question: `target` = named player (required); formal_accusation: `target` + `reason` (required); final_vote: `content` = a player name or `"no accusation"`, `target=None`. NOTE: both `target=None` and `target=""` (empty string) are valid representations of "no target" for action types that don't require one; these should be treated as equivalent in validation.
 - `NonCompliantAction` dataclass: `{raw_text: str, reason: str, action_type: "non_compliant"}` — a real recorded turn type (the run continues; spec §10.2).
 - `PlayerState`: `{player_id, role, role_card, scenario, backend, model_config}`.
 
@@ -66,7 +66,20 @@ The LLM-backed player agent: builds the per-player prompt (own role card + publi
 - Side effects: none.
 
 ### `validate_action(action: Action, cast_names: list[str], rules: dict) -> list[str]`
-- Behavior: pure. Returns a list of problems (empty = valid): question requires `target` in cast; formal_accusation requires `target` in cast and non-empty `reason`; final_vote content must be a cast name or `"no accusation"`; `target` must be in cast for any action that has one; content must be non-empty; content must not contain role-revealing phrases ("I am the traitor", "as a traitor", "my role is", case-insensitive) — rule §4; content must not contain out-of-character chatter ("as an AI", "I'm a language model", case-insensitive) — rule §3.
+- Behavior: pure. Returns a list of problems (empty = valid).
+
+  **Target requirements per action type:**
+  - `question`: REQUIRES a non-empty target in the cast (player name).
+  - `formal_accusation`: REQUIRES a non-empty target in the cast AND a non-empty `reason`.
+  - `statement`, `corroboration`, `alibi`, `challenge`, `final_vote`: DO NOT require a target. Both `target=None` and `target=""` (empty string) are treated as equivalent "no target provided" and valid for these types.
+
+  **Validation checks (all types):**
+  - Content must be non-empty.
+  - If a target is provided and non-empty, it must be a cast member name.
+  - Content must not contain role-revealing phrases ("I am the traitor", "as a traitor", "my role is", case-insensitive) — rule §4.
+  - Content must not contain out-of-character chatter ("as an AI", "I'm a language model", case-insensitive) — rule §3.
+  - For `final_vote`: content must be exactly a cast member name or `"no accusation"`.
+
 - Raises: never.
 - Side effects: none.
 

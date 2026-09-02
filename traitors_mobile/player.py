@@ -511,7 +511,7 @@ def validate_action(
 
     Checks: question requires a target in the cast; formal_accusation requires
     a target in the cast and a non-empty reason; final_vote content must be a
-    cast member name or "no accusation"; any target must be in the cast;
+    cast member name or "no accusation"; any non-empty target must be in the cast;
     content must be non-empty; content must not contain role-revealing phrases
     (rule §4) or out-of-character chatter (rule §3).
 
@@ -529,10 +529,12 @@ def validate_action(
     if not content:
         problems.append("content must be non-empty")
 
+    # Normalize target: treat empty strings as None (Claude may return "" for optional targets)
+    if isinstance(target, str) and not target.strip():
+        target = None
+
     if target is not None:
-        if not str(target).strip():
-            problems.append("target must be a named player")
-        elif str(target).strip().lower() not in cast_lower:
+        if str(target).strip().lower() not in cast_lower:
             problems.append(f"target {target!r} is not in the cast")
 
     if action_type == "question":
