@@ -43,6 +43,16 @@ DISCUSSION_ACTION_TYPES = [
     "formal_accusation",
 ]
 
+# Default token budget for one player turn. The LLMBackend.complete() default is
+# 256 tokens, which real models routinely exhaust while writing a verbose JSON
+# reply -- the response gets truncated mid-JSON and becomes unparseable
+# ("could not extract an action from the reply"). PlayerAgent passes this when
+# model_config does not name a max_tokens itself (both integration.py and
+# orchestrator._resolve_agent construct agents with model_config={}, so this
+# default is what every real game uses). 2048 leaves ample headroom for
+# DeepSeek v4-flash's reasoning budget plus a concise JSON answer.
+PLAYER_DEFAULT_MAX_TOKENS = 2048
+
 FINAL_VOTE_NO_ACCUSATION = "no accusation"
 
 # Phrases that reveal the speaker's role (rule §4); matched case-insensitively.
@@ -161,6 +171,11 @@ def _coerce_content(value: Any) -> Optional[str]:
 # --------------------------------------------------------------------------
 
 
+def _cast_roster(scenario: Any) -> List[str]:
+    """Ordered list of the cast's household names (player_ids)."""
+    return [str(p.player_id) for p in scenario.players]
+
+
 def build_player_prompt(
     state: Any,
     transcript: List[Any],
@@ -170,17 +185,19 @@ def build_player_prompt(
     """
     Build the messages list for the LLM backend.
 
-    System message: role, goal, session rules, allowed action types and the
-    required JSON reply format. User message: public scenario text, the
-    player's own private role card, the shared transcript, current round/phase,
-    any pending question, and the reply instruction.
+    System message: role, goal, session rules, the public cast roster (the
+    only valid targets), allowed action types and the required JSON reply
+    format. User message: public scenario text, the player's own private role
+    card, the shared transcript, current round/phase, any pending question,
+    and the reply instruction (which repeats the valid-target list).
 
     Raises PromptError if ``state`` lacks a role card or scenario.
     Side effects: none. Isolation property: the prompt contains ONLY the
     player's own role card plus public material -- never another player's
     cards, never the Traitor's crime declaration/cover story (unless this
     player IS the Traitor), never the Detective hint (unless this player IS
-    the Detective).
+    the Detective). The cast roster (household names) is public: every player
+    knows who is present and hears everyone speak by name in the transcript.
     """
     role_card = _get(state, "role_card")
     scenario = _get(state, "scenario")
@@ -203,6 +220,19 @@ def build_player_prompt(
         allowed = DISCUSSION_ACTION_TYPES
     allowed_text = ", ".join(allowed)
 
+    # Public cast roster -- the complete set of valid targets. Listed once in
+    # the system message and repeated near the reply instruction in the user
+    # message (SWA-180): models otherwise invent plausible-sounding targets
+    # ("the caretaker", "buffet_observer", "the group") from the scenario
+    # narrative, which are NOT players.
+    roster = _cast_roster(scenario)
+    roster_text = ", ".join(roster)
+    no_target_rule = (
+        "never a role title, never a person or group mentioned in the "
+        "scenario narrative (e.g. 'the caretaker', 'the buffet observer', "
+        "'the event organiser'), and never 'the group'"
+    )
+
     goal = str(getattr(role_card, "goal", "") or "")
     system_parts = [
         f"You are {player_id}, a player in a social-deduction game"
@@ -214,10 +244,16 @@ def build_player_prompt(
         "observations you were not given.",
         "- Stay in character at all times; never mention being an AI or a "
         "language model.",
+        f"- The players present are exactly: {roster_text}. These five "
+        "household names are the only people in the game.",
+        f"- When your action names or targets another player (question, "
+        f"formal accusation, challenge, or any reference), use exactly one "
+        f"of these names: {roster_text} -- {no_target_rule}.",
         f"- Your reply must be exactly one action of one of these types: "
         f"{allowed_text}.",
         '- Reply with ONLY a JSON object: {"action_type": "...", "content": '
         '"...", "target": "...", "reason": "..."}.',
+        '- Keep "content" concise: 1-2 short sentences spoken in character.',
     ]
     system_content = "\n".join(system_parts)
 
@@ -282,8 +318,16 @@ def build_player_prompt(
     user_parts.append(
         "Reply with exactly one action in this JSON format: "
         f'{{"action_type": "<one of {allowed_text}>", "content": "what you '
-        'say or do", "target": "named player or empty", "reason": "only for '
-        'formal accusation"}'
+        'say or do, 1-2 sentences", "target": "<exact household name from '
+        'the valid list, or empty>", "reason": "only for formal accusation"}}'
+    )
+    user_parts.append(
+        f"Valid targets are ONLY the five household names: {roster_text}. "
+        "A question MUST pick exactly one of these players to address "
+        f"(choose the player whose observation matters most) -- {no_target_rule}. "
+        'Example: {"action_type": "question", "content": "You mentioned the '
+        'office door was unlocked around 8:40pm -- who else was near the '
+        'corridor?", "target": "The Chens", "reason": ""}'
     )
     user_content = "\n".join(user_parts)
 
@@ -302,12 +346,20 @@ def assert_prompt_isolated(
     Pure helper: check whether the prompt leaks other players' private material.
 
     For every OTHER player's private material strings (goal, observations,
-    crime declaration, cover story, detective hint) and household name, checks
-    whether the material appears in ``prompt_text`` (case-insensitive, after
-    collapsing whitespace). Own material may appear -- occurrences of the
-    current player's own materials are excluded from the scanned text first,
-    so a name that only appears inside the player's own card (e.g. the
-    Traitor's card mentioning another household) is not a leak.
+    crime declaration, cover story, detective hint), checks whether the
+    material appears in ``prompt_text`` (case-insensitive, after collapsing
+    whitespace). Own material may appear -- occurrences of the current
+    player's own materials are excluded from the scanned text first, so a
+    name that only appears inside the player's own card (e.g. the Traitor's
+    card mentioning another household) is not a leak.
+
+    Household names themselves are NOT private: the cast roster is public
+    (every player knows who is present) and the shared transcript labels
+    every speaker by household name (SWA-180). What is private is each
+    player's role material -- the goal, observations, crime declaration,
+    cover story and detective hint scanned above. A prompt may therefore
+    name other households freely (roster, transcript) as long as none of
+    their card material appears.
 
     Returns a list of violation descriptions; empty list = isolated.
     Never raises. No side effects.
@@ -332,11 +384,6 @@ def assert_prompt_isolated(
                     f"prompt for {player_id} contains private material from "
                     f"{other_id}: {material}"
                 )
-        other_name = _normalize(other_id)
-        if other_name and other_name in remaining:
-            violations.append(
-                f"prompt for {player_id} contains the household name of {other_id}"
-            )
 
     return violations
 
@@ -642,8 +689,17 @@ class PlayerAgent:
 
         messages = build_player_prompt(self.state, transcript, round_info, must_respond_to)
 
-        kwargs: Dict[str, Any] = {}
-        for key in ("max_tokens", "temperature", "timeout"):
+        # Token budget: the LLMBackend.complete() default (256) is too small
+        # for a JSON reply plus reasoning; a truncated response is unparseable
+        # (SWA-180 Problem 1). Callers (integration.py / orchestrator) build
+        # agents with model_config={}, so apply the module default here unless
+        # the caller opted in explicitly.
+        kwargs: Dict[str, Any] = {
+            "max_tokens": self.model_config.get(
+                "max_tokens", PLAYER_DEFAULT_MAX_TOKENS
+            )
+        }
+        for key in ("temperature", "timeout"):
             if key in self.model_config:
                 kwargs[key] = self.model_config[key]
         rules = self.model_config.get("rules", {})
@@ -665,14 +721,36 @@ class PlayerAgent:
                 messages = list(messages) + [
                     {
                         "role": "user",
-                        "content": (
-                            "Your previous reply was invalid: "
-                            + "; ".join(last_errors)
-                            + ". Reply with exactly one valid action."
-                        ),
+                        "content": self._retry_message(last_errors),
                     }
                 ]
         return NonCompliantAction(raw_text=last_raw, reason="; ".join(last_errors))
+
+    def _retry_message(self, errors: List[str]) -> str:
+        """Build the one re-prompt sent after an invalid reply (SWA-180).
+
+        Keeps the contract's message prefix, then adds what the model was
+        actually missing: the valid-target roster (models invent narrative
+        characters like 'the caretaker' / 'buffet_observer' as targets), the
+        JSON-only format (models wrap replies in prose or markdown fences, or
+        write content so long the reply is truncated mid-JSON), and the
+        conciseness requirement.
+        """
+        roster_text = ", ".join(self.cast_names)
+        parts = [
+            "Your previous reply was invalid: " + "; ".join(errors)
+            + ". Reply with exactly one valid action.",
+            f"Valid targets are ONLY: {roster_text}. If a target is required "
+            "(question, formal accusation), pick exactly one of these "
+            "household names -- never a role or description such as 'the "
+            "caretaker' or 'the buffet observer', and never 'the group'.",
+            "Reply with ONLY a single JSON object and nothing else -- no "
+            'markdown fences (```json), no prose around it: {"action_type": '
+            '"<one of the allowed types>", "content": "1-2 sentences", '
+            '"target": "<exact name from the list above, or empty>", '
+            '"reason": "<only for formal accusation>"}.',
+        ]
+        return " ".join(parts)
 
 
 __all__ = [

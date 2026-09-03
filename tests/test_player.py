@@ -1156,5 +1156,236 @@ class TestActionTypeEnum:
             assert result.action_type == expected_type
 
 
+# ============================================================================
+# SWA-180 REGRESSION TESTS: compliance-rate fixes
+#
+# Guard the two failure modes found in SWA-164's re-verification:
+#  1. "could not extract an action from the reply" -- JSON replies truncated
+#     at the backend's 256-token default max_tokens (verbose content + no
+#     token budget => unparseable half-JSON), plus re-prompt text that did not
+#     restate the JSON-only format.
+#  2. "target 'X' is not in the cast" for X in {'buffet_observer', 'caretaker',
+#     'the bar observer', 'the group', ...} -- the prompt never listed the
+#     cast, so models invented targets from scenario narrative characters.
+# ============================================================================
+
+
+class _RecordingBackend:
+    """MockBackend stand-in that records every (messages, kwargs) call."""
+
+    def __init__(self, scripted):
+        self._scripted = list(scripted)
+        self.calls = []  # list of (messages, kwargs)
+
+    def complete(self, messages, **kwargs):
+        self.calls.append((list(messages), dict(kwargs)))
+        return LLMResponse(text=self._scripted.pop(0), model="recording")
+
+    def probe(self):
+        return None
+
+
+class TestSWA180PromptListsValidTargets:
+    """The prompt must state the cast roster and the target rule explicitly."""
+
+    def test_prompt_contains_all_cast_names(self, mock_scenario):
+        """build_player_prompt lists every household name (valid targets)."""
+        player = mock_scenario.players[0]
+        state = {
+            "player_id": player.player_id,
+            "role": player.role,
+            "role_card": player.role_card,
+            "scenario": mock_scenario,
+            "backend": MockBackend(scripted=[]),
+            "model_config": {},
+        }
+        messages = build_player_prompt(
+            state, transcript=[], round_info={"round": 1, "phase": "discussion"}
+        )
+        full_text = " ".join(m["content"] for m in messages)
+        for p in mock_scenario.players:
+            assert p.household in full_text, (
+                f"prompt for {player.player_id} must list cast member {p.household}"
+            )
+
+    def test_prompt_forbids_narrative_characters_as_targets(self, mock_scenario):
+        """Prompt explicitly forbids scenario-narrative roles as targets."""
+        player = mock_scenario.players[0]
+        state = {
+            "player_id": player.player_id,
+            "role": player.role,
+            "role_card": player.role_card,
+            "scenario": mock_scenario,
+            "backend": MockBackend(scripted=[]),
+            "model_config": {},
+        }
+        messages = build_player_prompt(
+            state, transcript=[], round_info={"round": 1, "phase": "discussion"}
+        )
+        full_text = " ".join(m["content"] for m in messages).lower()
+        assert "the caretaker" in full_text  # named as an example of what NOT to use
+        assert "valid targets" in full_text
+        assert "question must" in full_text
+
+    def test_roster_prompt_still_isolated(self, mock_scenario):
+        """Roster-containing prompts leak no other player's private material."""
+        private_materials = extract_private_materials(mock_scenario)
+        for player in mock_scenario.players:
+            state = {
+                "player_id": player.player_id,
+                "role": player.role,
+                "role_card": player.role_card,
+                "scenario": mock_scenario,
+                "backend": MockBackend(scripted=[]),
+                "model_config": {},
+            }
+            messages = build_player_prompt(
+                state, transcript=[], round_info={"round": 1, "phase": "discussion"}
+            )
+            prompt_text = " ".join(m["content"] for m in messages)
+            violations = assert_prompt_isolated(
+                prompt_text, private_materials, player.player_id
+            )
+            assert violations == [], (
+                f"Player {player.player_id} leaks: {violations}"
+            )
+
+
+class TestSWA180TokenBudget:
+    """PlayerAgent must give the model enough tokens to finish its JSON."""
+
+    def test_default_max_tokens_above_backend_minimum(self, mock_scenario):
+        """With model_config={}, act() passes a generous max_tokens (not 256)."""
+        player = mock_scenario.players[0]
+        backend = _RecordingBackend(scripted=[
+            '{"action_type": "statement", "content": "I saw something"}'
+        ])
+        agent = PlayerAgent(
+            identity=PlayerIdentity(
+                player_id=player.player_id,
+                role=player.role,
+                household=player.household,
+            ),
+            role_card=player.role_card,
+            scenario=mock_scenario,
+            backend=backend,
+            model_config={},
+        )
+        action = agent.act(
+            transcript=[], round_info={"round": 1, "phase": "discussion"}
+        )
+        assert isinstance(action, Action)
+        assert len(backend.calls) == 1
+        assert backend.calls[0][1]["max_tokens"] >= 1024, (
+            "default max_tokens must leave headroom for a full JSON reply, "
+            f"got {backend.calls[0][1].get('max_tokens')}"
+        )
+
+    def test_explicit_model_config_max_tokens_wins(self, mock_scenario):
+        """A caller-provided max_tokens overrides the module default."""
+        player = mock_scenario.players[0]
+        backend = _RecordingBackend(scripted=[
+            '{"action_type": "statement", "content": "I saw something"}'
+        ])
+        agent = PlayerAgent(
+            identity=PlayerIdentity(
+                player_id=player.player_id,
+                role=player.role,
+                household=player.household,
+            ),
+            role_card=player.role_card,
+            scenario=mock_scenario,
+            backend=backend,
+            model_config={"max_tokens": 512},
+        )
+        action = agent.act(
+            transcript=[], round_info={"round": 1, "phase": "discussion"}
+        )
+        assert isinstance(action, Action)
+        assert backend.calls[0][1]["max_tokens"] == 512
+
+
+class TestSWA180InvalidTargetRetry:
+    """Re-prompt after an invalid target must restate the valid-target list."""
+
+    def test_retry_message_lists_valid_targets_and_format(self, mock_scenario):
+        """After 'buffet_observer'-style failure, retry names the real cast."""
+        player = mock_scenario.players[0]
+        backend = _RecordingBackend(scripted=[
+            # First attempt: invented narrative target (SWA-180 Problem 2).
+            '{"action_type": "question", "content": "What did you see?", '
+            '"target": "buffet_observer", "reason": ""}',
+            # Second attempt (after re-prompt): valid cast target.
+            '{"action_type": "question", "content": "What did you see?", '
+            '"target": "' + mock_scenario.players[1].household + '", '
+            '"reason": ""}',
+        ])
+        agent = PlayerAgent(
+            identity=PlayerIdentity(
+                player_id=player.player_id,
+                role=player.role,
+                household=player.household,
+            ),
+            role_card=player.role_card,
+            scenario=mock_scenario,
+            backend=backend,
+            model_config={},
+        )
+        action = agent.act(
+            transcript=[], round_info={"round": 1, "phase": "discussion"}
+        )
+        assert isinstance(action, Action), f"expected recovery via re-prompt, got {action!r}"
+        assert action.action_type == "question"
+        assert len(backend.calls) == 2
+
+        retry_content = backend.calls[1][0][-1]["content"]
+        assert "Your previous reply was invalid:" in retry_content
+        assert "not in the cast" in retry_content
+        assert "Valid targets are ONLY" in retry_content
+        for p in mock_scenario.players:
+            assert p.household in retry_content, (
+                f"retry message must name cast member {p.household}"
+            )
+        assert "```" in retry_content  # warns against markdown fences
+        assert "Reply with exactly one valid action." in retry_content
+
+
+class TestSWA180TruncatedJsonRetry:
+    """A truncated JSON reply (old Problem 1) triggers an informative retry."""
+
+    def test_truncated_json_then_valid_reply_recovers(self, mock_scenario):
+        """Fenced JSON cut off mid-object must not end the turn non-compliant."""
+        player = mock_scenario.players[0]
+        # Simulates the real truncation: content so long the JSON never closes.
+        truncated = (
+            '```json\n{"action_type": "statement", "content": "'
+            + "I need to address a significant inconsistency " * 20
+            + '"'
+        )
+        backend = _RecordingBackend(scripted=[
+            truncated,
+            '{"action_type": "statement", "content": "Short and valid."}',
+        ])
+        agent = PlayerAgent(
+            identity=PlayerIdentity(
+                player_id=player.player_id,
+                role=player.role,
+                household=player.household,
+            ),
+            role_card=player.role_card,
+            scenario=mock_scenario,
+            backend=backend,
+            model_config={},
+        )
+        action = agent.act(
+            transcript=[], round_info={"round": 1, "phase": "discussion"}
+        )
+        assert isinstance(action, Action), f"expected recovery via re-prompt, got {action!r}"
+        assert action.content == "Short and valid."
+        retry_content = backend.calls[1][0][-1]["content"]
+        assert "could not extract an action from the reply" in retry_content
+        assert "ONLY a single JSON object" in retry_content
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
