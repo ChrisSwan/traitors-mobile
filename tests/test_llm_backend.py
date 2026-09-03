@@ -847,7 +847,14 @@ class TestDeepSeekCompleteWithMockedResponses:
                 os.environ.pop("DEEPSEEK_API_KEY", None)
 
     def test_deepseek_complete_raises_on_empty_content(self):
-        """DeepSeek 2xx with empty content must raise BackendError, never return ''."""
+        """DeepSeek 2xx with empty content must raise BackendError, never return ''.
+
+        Empty content (reasoning consumed the whole budget) is retryable per
+        SWA-180 -- reasoning length is stochastic, so a fresh attempt can
+        succeed. With max_retries=0 the retry budget is exhausted after the
+        first attempt, so the call raises BackendUnavailableError (a
+        BackendError subclass) -- the never-return-'' guarantee is pinned here.
+        """
         from traitors_mobile.llm_backend import DeepSeekBackend
         original_key = os.environ.get("DEEPSEEK_API_KEY", None)
         try:
@@ -869,11 +876,62 @@ class TestDeepSeekCompleteWithMockedResponses:
                 }
                 mock_post.return_value = mock_response
 
-                backend = create_backend({"provider": "deepseek"})
+                backend = DeepSeekBackend(api_key="test-key", max_retries=0)
 
                 # Must raise, never return empty string
                 with pytest.raises(BackendError):
                     backend.complete([{"role": "user", "content": "Test"}])
+        finally:
+            if original_key:
+                os.environ["DEEPSEEK_API_KEY"] = original_key
+            else:
+                os.environ.pop("DEEPSEEK_API_KEY", None)
+
+    def test_deepseek_retries_empty_content_then_succeeds(self):
+        """DeepSeek empty-content (reasoning budget) responses are retried (SWA-180).
+
+        Verified live 2026-09-03: identical real game prompts produced
+        finish_reason=length (empty content) on one attempt and full answers on
+        later attempts, because reasoning length is stochastic. A backend must
+        therefore retry empty content within its budget instead of aborting the
+        game on the first occurrence.
+        """
+        from traitors_mobile.llm_backend import DeepSeekBackend
+        original_key = os.environ.get("DEEPSEEK_API_KEY", None)
+        try:
+            os.environ["DEEPSEEK_API_KEY"] = "test-key"
+
+            with patch('traitors_mobile.llm_backend.requests.post') as mock_post:
+                with patch('traitors_mobile.llm_backend.time.sleep') as mock_sleep:
+                    empty = Mock(status_code=200, json=lambda: {
+                        "choices": [{
+                            "message": {
+                                "role": "assistant",
+                                "content": "",
+                                "reasoning_content": "thinking..."
+                            },
+                            "finish_reason": "length"
+                        }]
+                    })
+                    ok = Mock(status_code=200, json=lambda: {
+                        "choices": [{
+                            "message": {
+                                "role": "assistant",
+                                "content": "Recovered after retry",
+                                "reasoning_content": "thinking..."
+                            },
+                            "finish_reason": "stop"
+                        }]
+                    })
+                    mock_post.side_effect = [empty, ok]
+
+                    backend = DeepSeekBackend(api_key="test-key", max_retries=3,
+                                              retry_backoff_base_seconds=1.0)
+
+                    result = backend.complete([{"role": "user", "content": "Test"}])
+
+                    assert result.text == "Recovered after retry"
+                    assert mock_sleep.call_count >= 1  # backoff happened between attempts
         finally:
             if original_key:
                 os.environ["DEEPSEEK_API_KEY"] = original_key

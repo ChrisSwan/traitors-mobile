@@ -17,7 +17,9 @@ Constraints honored:
 - Never return reasoning_content: DeepSeek v4-flash is a reasoning model;
   only ``content`` field is returned as dialogue, never CoT.
 - Empty content is a failure: DeepSeek may exhaust max_tokens on reasoning
-  before producing an answer (content: ""). This raises, never returns "".
+  before producing an answer (content: ""). Never returns "" -- it retries
+  within the retry budget (reasoning length is stochastic; verified live
+  2026-09-03, SWA-180) and raises BackendUnavailableError when exhausted.
 
 Pinned stack (tech design sec 6): requests==2.32.3 (DeepSeek + Ollama HTTP),
 anthropic==1.2.0 (Claude SDK, legacy path only, no longer default).
@@ -114,6 +116,23 @@ class BackendUnavailableError(BackendError):
     """The retry budget was exhausted; the backend is unavailable.
 
     Raised instead of ever returning a partial/fabricated response.
+    """
+
+
+class EmptyContentError(BackendError):
+    """The provider returned a 2xx with empty ``content`` (RETRYABLE).
+
+    DeepSeek v4-flash is a reasoning model: when chain-of-thought consumes
+    the whole ``max_tokens`` budget, the API answers ``content: ""`` with
+    ``finish_reason: "length"``. This is NOT deterministic -- the length of
+    reasoning varies stochastically between calls for the same prompt
+    (verified live 2026-09-03, SWA-180: the same mid-game prompt produced
+    1747-6529 completion tokens across repeated calls, and every call that
+    returned content succeeded). Retrying the request therefore has a real
+    chance of producing an answer, so this error participates in the retry
+    budget like RateLimitError/BackendUnreachableError. After the budget is
+    exhausted the call raises BackendUnavailableError -- never "" and never
+    reasoning_content.
     """
 
 
@@ -472,31 +491,44 @@ class DeepSeekBackend(LLMBackend):
                 resp.raise_for_status()
                 data = resp.json()
                 try:
-                    text = data["choices"][0]["message"].get("content")
+                    message = data["choices"][0]["message"]
                 except (KeyError, IndexError, TypeError) as exc:
+                    raise BackendError(
+                        "DeepSeek returned a malformed response (missing "
+                        "choices[0].message); not a valid exchange",
+                        model=self.model,
+                    ) from exc
+                if "content" not in message or message.get("content") is None:
+                    # Structurally malformed 2xx (no content field at all):
+                    # deterministic server problem -- surface immediately.
                     raise BackendError(
                         "DeepSeek returned a malformed response (missing "
                         "choices[0].message.content); not a valid exchange",
                         model=self.model,
-                    ) from exc
+                    )
+                text = message.get("content") or ""
                 # Never return empty content (reasoning model edge case):
                 # DeepSeek can exhaust max_tokens on chain-of-thought before
                 # producing an answer, yielding content: "" with
-                # finish_reason: "length". Empty/missing content is a failure,
-                # not a response -- never return "" and never substitute
-                # reasoning_content.
+                # finish_reason: "length". Empty content is a failure, not a
+                # response -- never return "" and never substitute
+                # reasoning_content. Retryable (SWA-180): reasoning length is
+                # stochastic across calls for the same prompt, so a fresh
+                # attempt can succeed; see EmptyContentError.
                 if not text:
-                    raise BackendError(
+                    raise EmptyContentError(
                         "DeepSeek returned empty content (max_tokens budget "
                         "likely consumed by reasoning before an answer was "
-                        "produced); not a valid response and it will not be "
-                        "recorded as an exchange",
+                        "produced); retrying",
                         model=self.model,
+                        retries=self.max_retries - attempt,
                     )
                 return LLMResponse(text=text, model=self.model, raw=data)
             except RateLimitError as exc:
                 last_error = exc
             except BackendUnreachableError as exc:
+                last_error = exc
+            except EmptyContentError as exc:
                 last_error = exc
             except requests.exceptions.Timeout as exc:
                 last_error = BackendTimeoutError(str(exc), model=self.model, retries=self.max_retries - attempt)
@@ -506,10 +538,9 @@ class DeepSeekBackend(LLMBackend):
                 # Non-retryable 4xx (validation/auth) -- surface, don't fabricate.
                 raise BackendError(str(exc), model=self.model) from exc
             except BackendError:
-                # Empty/missing content (reasoning budget consumed) is
-                # non-retryable: retrying the same request will not produce an
-                # answer, so surface it immediately instead of burning the
-                # retry budget. (RateLimit/Unreachable/Timeout errors are
+                # Structurally malformed 2xx responses (no content field) are
+                # deterministic -- surface immediately, don't burn the retry
+                # budget. (RateLimit/Unreachable/Timeout/EmptyContent are
                 # retryable and are handled by the clauses above.)
                 raise
             if attempt < self.max_retries:
