@@ -1,8 +1,8 @@
 {
-  "_comment": "Example config for traitors-mobile (Mode B simulation). Copy to config.json and edit. Every section/key is optional -- omitted keys use the built-in defaults. The Claude API key is NEVER stored here: it is read from the ANTHROPIC_API_KEY environment variable at runtime (e.g. `source ~/.hermes/.env` before running). Provider options: claude | ollama | mock (mock = deterministic dry run, no network).",
+  "_comment": "Example config for traitors-mobile (Mode B simulation). Copy to config.json and edit. Every section/key is optional -- omitted keys use the built-in defaults. The DeepSeek API key is NEVER stored here: it is read from the DEEPSEEK_API_KEY environment variable at runtime (e.g. `source ~/.hermes/.env` before running). Provider options: deepseek (primary, default) | claude (legacy, key no longer provisioned) | ollama (opportunistic LAN) | mock (deterministic dry run, no network).",
   "backend": {
-    "provider": "claude",
-    "model": "claude-haiku-4-5",
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
     "timeout_seconds": 60,
     "max_retries": 3,
     "retry_backoff_base_seconds": 2.0,

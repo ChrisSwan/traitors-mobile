@@ -51,7 +51,7 @@ from traitors_mobile.scenario import (
     load_scenario,
 )
 
-VALID_PROVIDERS = ("claude", "ollama", "mock")
+VALID_PROVIDERS = ("deepseek", "claude", "ollama", "mock")
 DEFAULT_SCENARIO_TEMPLATE = "stolen-prize-tin"
 CAST_ROLES = ("traitor", "detective", "loyalist_a", "loyalist_b", "loyalist_c")
 
@@ -173,7 +173,7 @@ def load_config(path: Optional[str] = None) -> AppConfig:
 
     Raises:
         ConfigError: file missing / not valid JSON / not an object; invalid
-            ``backend.provider`` (must be claude|ollama|mock); ``num_games``
+            ``backend.provider`` (must be deepseek|claude|ollama|mock); ``num_games``
             < 1; ``rounds_per_game`` < 2; empty ``output_dir``; empty
             ``scenario.template``; empty cast household names.
     """

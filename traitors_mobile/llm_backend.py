@@ -219,7 +219,7 @@ class MockBackend(LLMBackend):
 
 
 # --------------------------------------------------------------------------
-# Claude backend (primary, default)
+# Claude backend (legacy, non-default -- retained per SWA-176; no key provisioned)
 # --------------------------------------------------------------------------
 
 
@@ -471,12 +471,26 @@ class DeepSeekBackend(LLMBackend):
                     )
                 resp.raise_for_status()
                 data = resp.json()
-                text = data["choices"][0]["message"].get("content")
-                # Never return empty content (reasoning model edge case)
+                try:
+                    text = data["choices"][0]["message"].get("content")
+                except (KeyError, IndexError, TypeError) as exc:
+                    raise BackendError(
+                        "DeepSeek returned a malformed response (missing "
+                        "choices[0].message.content); not a valid exchange",
+                        model=self.model,
+                    ) from exc
+                # Never return empty content (reasoning model edge case):
+                # DeepSeek can exhaust max_tokens on chain-of-thought before
+                # producing an answer, yielding content: "" with
+                # finish_reason: "length". Empty/missing content is a failure,
+                # not a response -- never return "" and never substitute
+                # reasoning_content.
                 if not text:
                     raise BackendError(
-                        "DeepSeek returned empty content (likely consumed by reasoning); "
-                        "this is not a valid response and will not be recorded as an exchange",
+                        "DeepSeek returned empty content (max_tokens budget "
+                        "likely consumed by reasoning before an answer was "
+                        "produced); not a valid response and it will not be "
+                        "recorded as an exchange",
                         model=self.model,
                     )
                 return LLMResponse(text=text, model=self.model, raw=data)
@@ -491,12 +505,13 @@ class DeepSeekBackend(LLMBackend):
             except requests.exceptions.HTTPError as exc:
                 # Non-retryable 4xx (validation/auth) -- surface, don't fabricate.
                 raise BackendError(str(exc), model=self.model) from exc
-            except BackendError as exc:
-                # Empty content case: non-retryable, raise immediately
-                if "empty content" in str(exc).lower():
-                    raise
-                # Otherwise fall through to retry
-                last_error = exc
+            except BackendError:
+                # Empty/missing content (reasoning budget consumed) is
+                # non-retryable: retrying the same request will not produce an
+                # answer, so surface it immediately instead of burning the
+                # retry budget. (RateLimit/Unreachable/Timeout errors are
+                # retryable and are handled by the clauses above.)
+                raise
             if attempt < self.max_retries:
                 time.sleep(self.retry_backoff_base_seconds * (2 ** attempt))
         raise BackendUnavailableError(
