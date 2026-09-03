@@ -49,9 +49,14 @@ DISCUSSION_ACTION_TYPES = [
 # ("could not extract an action from the reply"). PlayerAgent passes this when
 # model_config does not name a max_tokens itself (both integration.py and
 # orchestrator._resolve_agent construct agents with model_config={}, so this
-# default is what every real game uses). 2048 leaves ample headroom for
-# DeepSeek v4-flash's reasoning budget plus a concise JSON answer.
-PLAYER_DEFAULT_MAX_TOKENS = 2048
+# default is what every real game uses).
+#
+# Verified live against deepseek-v4-flash (SWA-180, 2026-09-03): a real
+# mid-game turn consumed 1747-6529 completion tokens (reasoning_content
+# dominates; the JSON answer itself is ~250 tokens). A 2048 budget produced
+# finish_reason="length" with empty content on real turns -> game abort.
+# 8192 is accepted by the API and leaves headroom for the observed variance.
+PLAYER_DEFAULT_MAX_TOKENS = 8192
 
 FINAL_VOTE_NO_ACCUSATION = "no accusation"
 
