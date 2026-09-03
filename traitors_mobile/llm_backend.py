@@ -1,12 +1,12 @@
 """
 traitors-mobile-llm-backend (Module 3)
 
-One interface for all model calls: Claude (primary, default), Ollama
-(opportunistic secondary, LAN), and a deterministic Mock (tests). Owns
-retries with exponential backoff, timeouts, provider selection, and the
-Ollama availability probe.
+One interface for all model calls: DeepSeek (primary, default), Claude (legacy),
+Ollama (opportunistic secondary, LAN), and a deterministic Mock (tests). Owns
+retries with exponential backoff, timeouts, provider selection, and backend
+availability probes.
 
-Contract: specs/contracts/llm-backend.md (SWA-146).
+Contract: specs/contracts/llm-backend.md revision 2 (SWA-176/SWA-177).
 
 Constraints honored:
 - No prompt building -- this module takes a ready ``messages`` list and
@@ -14,9 +14,14 @@ Constraints honored:
 - No game/transcript concepts; no writes to disk; no state beyond config.
 - Never fabricates a response: when the retry budget is exhausted it
   raises ``BackendUnavailableError`` -- never a placeholder string.
+- Never return reasoning_content: DeepSeek v4-flash is a reasoning model;
+  only ``content`` field is returned as dialogue, never CoT.
+- Empty content is a failure: DeepSeek may exhaust max_tokens on reasoning
+  before producing an answer (content: ""). This raises, never returns "".
 
-Pinned stack (tech design sec 6): anthropic==1.2.0 (Claude SDK),
-requests==2.32.3 (Ollama HTTP). No other runtime dependencies.
+Pinned stack (tech design sec 6): requests==2.32.3 (DeepSeek + Ollama HTTP),
+anthropic==1.2.0 (Claude SDK, legacy path only, no longer default).
+No SDK packages for deepseek/ollama/openai.
 """
 
 from __future__ import annotations
@@ -35,6 +40,8 @@ except ImportError:  # pragma: no cover - only reachable if deps not installed
 
 # Defaults mirror tech design sec 8 (config schema).
 DEFAULT_CLAUDE_MODEL = "claude-haiku-4-5"
+DEFAULT_DEEPSEEK_MODEL = "deepseek-v4-flash"
+DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
 DEFAULT_OLLAMA_MODEL = "qwen3:8b"
 DEFAULT_OLLAMA_BASE_URL = "http://192.168.0.38:11434"
 DEFAULT_TIMEOUT_SECONDS = 60.0
@@ -405,6 +412,129 @@ class OllamaBackend(LLMBackend):
 
 
 # --------------------------------------------------------------------------
+# DeepSeek backend (primary, default in revision 2)
+# --------------------------------------------------------------------------
+
+
+class DeepSeekBackend(LLMBackend):
+    """DeepSeek v4-flash via plain HTTP against the OpenAI-compatible /v1 endpoint.
+
+    Primary, default real-API backend (revision 2, SWA-176). DeepSeek is a reasoning
+    model: responses carry both 'content' (the answer) and 'reasoning_content' (CoT).
+    Only content is returned as the response; reasoning is never returned as dialogue.
+    """
+
+    def __init__(
+        self,
+        api_key: str,
+        model: str = DEFAULT_DEEPSEEK_MODEL,
+        base_url: str = DEFAULT_DEEPSEEK_BASE_URL,
+        max_retries: int = DEFAULT_MAX_RETRIES,
+        retry_backoff_base_seconds: float = DEFAULT_RETRY_BACKOFF_BASE_SECONDS,
+        timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+    ) -> None:
+        self.api_key = api_key
+        self.model = model
+        self.base_url = base_url.rstrip("/")
+        self.max_retries = max_retries
+        self.retry_backoff_base_seconds = retry_backoff_base_seconds
+        self.timeout_seconds = timeout_seconds
+
+    def complete(
+        self,
+        messages: List[Dict[str, str]],
+        max_tokens: int = 256,
+        temperature: float = 0.7,
+        timeout: Optional[float] = None,
+    ) -> LLMResponse:
+        request_timeout = timeout if timeout is not None else self.timeout_seconds
+        url = f"{self.base_url}/chat/completions"
+        headers = {"Authorization": f"Bearer {self.api_key}"}
+        payload = {
+            "model": self.model,
+            "messages": messages,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+        }
+        last_error: Optional[BackendError] = None
+        for attempt in range(self.max_retries + 1):
+            try:
+                resp = requests.post(url, json=payload, headers=headers, timeout=request_timeout)
+                if resp.status_code == 429:
+                    raise RateLimitError(
+                        f"DeepSeek returned HTTP 429", model=self.model, retries=self.max_retries - attempt
+                    )
+                if resp.status_code >= 500:
+                    raise BackendUnreachableError(
+                        f"DeepSeek returned HTTP {resp.status_code}", model=self.model,
+                        retries=self.max_retries - attempt,
+                    )
+                resp.raise_for_status()
+                data = resp.json()
+                text = data["choices"][0]["message"].get("content")
+                # Never return empty content (reasoning model edge case)
+                if not text:
+                    raise BackendError(
+                        "DeepSeek returned empty content (likely consumed by reasoning); "
+                        "this is not a valid response and will not be recorded as an exchange",
+                        model=self.model,
+                    )
+                return LLMResponse(text=text, model=self.model, raw=data)
+            except RateLimitError as exc:
+                last_error = exc
+            except BackendUnreachableError as exc:
+                last_error = exc
+            except requests.exceptions.Timeout as exc:
+                last_error = BackendTimeoutError(str(exc), model=self.model, retries=self.max_retries - attempt)
+            except requests.exceptions.ConnectionError as exc:
+                last_error = BackendUnreachableError(str(exc), model=self.model, retries=self.max_retries - attempt)
+            except requests.exceptions.HTTPError as exc:
+                # Non-retryable 4xx (validation/auth) -- surface, don't fabricate.
+                raise BackendError(str(exc), model=self.model) from exc
+            except BackendError as exc:
+                # Empty content case: non-retryable, raise immediately
+                if "empty content" in str(exc).lower():
+                    raise
+                # Otherwise fall through to retry
+                last_error = exc
+            if attempt < self.max_retries:
+                time.sleep(self.retry_backoff_base_seconds * (2 ** attempt))
+        raise BackendUnavailableError(
+            f"DeepSeek backend unavailable after {self.max_retries + 1} attempts",
+            provider="deepseek",
+            model=self.model,
+            attempts=self.max_retries + 1,
+            last_error=str(last_error),
+        )
+
+    def probe(self) -> ProbeResult:
+        """GET /models with a short timeout; returns a result, never raises."""
+        try:
+            url = f"{self.base_url}/models"
+            headers = {"Authorization": f"Bearer {self.api_key}"}
+            resp = requests.get(
+                url,
+                headers=headers,
+                timeout=min(self.timeout_seconds, DEFAULT_PROBE_TIMEOUT_SECONDS),
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            # DeepSeek returns models in data.data[].id format (OpenAI-compatible)
+            model_ids = [m.get("id", "") for m in data.get("data", [])]
+            # Only report available=True if our configured model is in the list
+            if self.model in model_ids:
+                return ProbeResult(available=True, models=model_ids, error=None)
+            else:
+                return ProbeResult(
+                    available=False,
+                    models=model_ids,
+                    error=f"Configured model {self.model} not in available models"
+                )
+        except Exception as exc:  # noqa: BLE001 - probe must never raise
+            return ProbeResult(available=False, models=[], error=str(exc))
+
+
+# --------------------------------------------------------------------------
 # Factory
 # --------------------------------------------------------------------------
 
@@ -412,14 +542,34 @@ class OllamaBackend(LLMBackend):
 def create_backend(config: BackendConfig) -> LLMBackend:
     """Factory: build the backend selected by ``config["provider"]``.
 
-    Raises ``ConfigError`` for unknown providers or a missing
-    ``ANTHROPIC_API_KEY`` when ``provider == "claude"``.
+    Raises ``ConfigError`` for unknown providers, missing API keys (deepseek/claude),
+    or other invalid config.
+
+    Valid providers (revision 2): "deepseek" (primary, default), "claude" (legacy),
+    "ollama" (opportunistic secondary), "mock" (deterministic tests).
     """
     provider = (config or {}).get("provider")
     if provider == "mock":
         return MockBackend(
             scripted=config.get("scripted", []),
             model=config.get("model", "mock"),
+        )
+    if provider == "deepseek":
+        api_key = os.environ.get("DEEPSEEK_API_KEY")
+        if not api_key:
+            raise ConfigError(
+                "DEEPSEEK_API_KEY not set in environment; source ~/.hermes/.env "
+                "or export it before creating a DeepSeek backend"
+            )
+        return DeepSeekBackend(
+            api_key=api_key,
+            model=config.get("model", DEFAULT_DEEPSEEK_MODEL),
+            base_url=config.get("base_url", DEFAULT_DEEPSEEK_BASE_URL),
+            max_retries=config.get("max_retries", DEFAULT_MAX_RETRIES),
+            retry_backoff_base_seconds=config.get(
+                "retry_backoff_base_seconds", DEFAULT_RETRY_BACKOFF_BASE_SECONDS
+            ),
+            timeout_seconds=config.get("timeout_seconds", DEFAULT_TIMEOUT_SECONDS),
         )
     if provider == "claude":
         api_key = os.environ.get("ANTHROPIC_API_KEY")
@@ -448,7 +598,8 @@ def create_backend(config: BackendConfig) -> LLMBackend:
             timeout_seconds=config.get("timeout_seconds", DEFAULT_TIMEOUT_SECONDS),
         )
     raise ConfigError(
-        f"Invalid backend provider {provider!r}; valid providers are 'claude', 'ollama', 'mock'"
+        f"Invalid backend provider {provider!r}; "
+        f"valid providers are 'deepseek', 'claude', 'ollama', 'mock'"
     )
 
 
@@ -457,6 +608,7 @@ __all__ = [
     "LLMResponse",
     "MockBackend",
     "ClaudeBackend",
+    "DeepSeekBackend",
     "OllamaBackend",
     "ProbeResult",
     "BackendError",
